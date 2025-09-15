@@ -1,0 +1,59 @@
+server:
+  schema:
+    createDatabase:
+      enabled: true   # create MySQL DB schema
+    setup:
+      enabled: true   # create Elasticsearch index
+    update:
+      enabled: false
+
+  worker:
+    securityContext:
+      privileged: false
+
+  config:
+    persistence:
+      # Default workflow DB
+      default:
+        driver: "sql"
+        sql:
+          driver: "mysql8"
+          host: "${rds_endpoint}"
+          port: 3306
+          user: "${db_username}"
+          password: "${db_password}"
+          maxConns: 20
+          maxIdleConns: 20
+          maxConnLifetime: "1h"
+
+      # Visibility store → Elasticsearch
+      visibility:
+        driver: "elasticsearch"
+        elasticsearch:
+          url: http://elasticsearch-master-headless:9200
+          version: v7
+          index: temporal_visibility_v1_dev
+          username: ""        # empty if ES has no auth
+          password: ""        # empty if ES has no auth
+
+# Disable Cassandra
+cassandra:
+  enabled: false
+
+# MySQL only for workflow DB
+mysql:
+  enabled: true
+
+# Enable Elasticsearch for visibility
+elasticsearch:
+  enabled: true
+
+# Disable Postgres
+postgresql:
+  enabled: false
+
+# Disable monitoring
+grafana:
+  enabled: false
+prometheus:
+  enabled: false
